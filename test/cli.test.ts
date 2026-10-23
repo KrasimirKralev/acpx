@@ -1679,6 +1679,20 @@ test("--ttl flag is parsed for sessions commands", async () => {
   });
 });
 
+test("--agent with an unterminated quote is a usage error", async () => {
+  await withTempHome(async (homeDir) => {
+    const text = await runCli(["--agent", "'x", "exec", "hi"], homeDir);
+    assert.equal(text.code, 2, text.stdout + text.stderr);
+    assert.match(text.stderr, /Invalid --agent command: unterminated quote/);
+
+    const json = await runCli(["--format", "json", "--agent", "'x", "exec", "hi"], homeDir);
+    assert.equal(json.code, 2, json.stdout + json.stderr);
+    const error = parseSingleAcpErrorLine(json.stdout);
+    assert.equal(error.data?.acpxCode, "USAGE");
+    assert.match(error.message ?? "", /Invalid --agent command: unterminated quote/);
+  });
+});
+
 test("--auth-policy flag validates supported values", async () => {
   await withTempHome(async (homeDir) => {
     const ok = await runCli(
