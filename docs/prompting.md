@@ -73,7 +73,7 @@ CLI flags still win, so `acpx codex …` always runs codex even if `defaultAgent
 
 ## Prompt options
 
-Available on `prompt`, the bare implicit form, and `exec`:
+Available on `prompt` and the bare implicit form:
 
 | Option          | Description                                                                |
 | --------------- | -------------------------------------------------------------------------- |
@@ -82,6 +82,8 @@ Available on `prompt`, the bare implicit form, and `exec`:
 | `-f, --file`    | Read prompt text from a file (`-` reads stdin and still allows extra args) |
 
 `--no-wait` is per-prompt; the next call without `--no-wait` will block normally.
+
+`exec` always runs in a temporary session, so of these it accepts only `-f, --file` (plus [`--config-option`](#one-shot-session-configuration)); `-s, --session` and `--no-wait` on `exec` fail with `error: unknown option`.
 
 After an agent name, `--file` and `--no-wait` can appear before the explicit `prompt` subcommand or on it. `exec` accepts `--file` in either position as well. When both levels supply a file, the subcommand's explicit file wins. File input still combines with positional text, including when `--file -` reads stdin; text after `--` remains literal prompt content.
 
