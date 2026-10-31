@@ -316,9 +316,23 @@ test("bootstrap keeps version independent of config and applies loaded output de
 test("top-level output flag detection stops at the first command token", async () => {
   await withTempHome(async (homeDir) => {
     const result = await runCli(["codex", "--json-strict"], homeDir);
-    assert.equal(result.code, 1);
+    assert.equal(result.code, 2);
     assert.equal(result.stdout.trim(), "");
     assert.match(result.stderr, /unknown option '--json-strict'/);
+  });
+});
+
+test("subcommand usage errors exit 2 and honor --format json", async () => {
+  await withTempHome(async (homeDir) => {
+    const text = await runCli(["codex", "exec", "--bogus", "hi"], homeDir);
+    assert.equal(text.code, 2);
+    assert.match(text.stderr, /unknown option '--bogus'/);
+
+    const json = await runCli(["--format", "json", "sessions", "list", "--bogus"], homeDir);
+    assert.equal(json.code, 2);
+    const error = parseSingleAcpErrorLine(json.stdout);
+    assert.equal(error.data?.acpxCode, "USAGE");
+    assert.match(error.message ?? "", /unknown option '--bogus'/);
   });
 });
 
